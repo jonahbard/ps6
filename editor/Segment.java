@@ -30,6 +30,22 @@ public class Segment implements Shape {
 		this.color = color;
 	}
 
+	public void drawDrag(int ox, int oy, int nx, int ny) { //right now it doesn't handle the first two parameters
+
+		if (nx>=x1) { // if dragged to the right or straight up/down
+			x2 = nx;
+		} else { // otherwise switch to ensure that x2 > x1
+			x2 = x1;
+			x1 = nx;
+		}
+		if (ny>=x1){ // if dragged down or straight left/right
+			y2 = ny;
+		} else {     // otherwise switch to ensure that y2 > y1
+			y2 = y1;
+			y1 = ny;
+		}
+	}
+
 	/**
 	 * Update the start (first point) of the segment
 	 */

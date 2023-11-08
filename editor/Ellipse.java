@@ -58,6 +58,11 @@ public class Ellipse implements Shape {
 	}
 
 	@Override
+	public void drawDrag(int ox, int oy, int nx, int ny) {
+		setCorners(ox, oy, nx, ny);
+	}
+
+	@Override
 	public Color getColor() {
 		return color;
 	}

@@ -14,6 +14,8 @@ public interface Shape {
 	 */
 	public void moveBy(int dx, int dy);
 
+	public void drawDrag(int ox, int oy, int nx, int ny);
+
 	/**
 	 * Whether or not the point is inside the shape
 	 */
