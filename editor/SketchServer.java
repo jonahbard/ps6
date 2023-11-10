@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.net.*;
 import java.util.*;
 import java.io.*;
@@ -9,10 +10,12 @@ import java.io.*;
  * @author Chris Bailey-Kellogg, Dartmouth CS 10, Fall 2012; revised Winter 2014 to separate SketchServerCommunicator
  */
 public class SketchServer {
+
+	int nextID = 0;
 	private ServerSocket listen;						// for accepting connections
 	private ArrayList<SketchServerCommunicator> comms;	// all the connections with clients
 	private Sketch sketch;								// the state of the world
-	
+
 	public SketchServer(ServerSocket listen) {
 		this.listen = listen;
 		sketch = new Sketch();
@@ -22,7 +25,7 @@ public class SketchServer {
 	public Sketch getSketch() {
 		return sketch;
 	}
-	
+
 	/**
 	 * The usual loop of accepting connections and firing off new threads to handle them
 	 */
@@ -34,6 +37,23 @@ public class SketchServer {
 			comm.start();
 			addCommunicator(comm);
 		}
+	}
+
+	public synchronized void addShape(Shape shape){
+		sketch.addShape(nextID, shape); // need to
+		nextID++;
+	}
+
+	public synchronized void removeShape(int id){
+		sketch.removeShape(id);
+	}
+
+	public synchronized void moveShape(int id, int dx, int dy){
+		sketch.moveShape(nextID, dx, dy);
+	}
+
+	public synchronized void recolorShape(int id, Color color){
+		sketch.recolorShape(id, color);
 	}
 
 	/**
@@ -58,7 +78,7 @@ public class SketchServer {
 			comm.send(msg);
 		}
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		new SketchServer(new ServerSocket(4242)).getConnections();
 	}

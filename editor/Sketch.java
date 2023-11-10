@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -26,6 +27,15 @@ public class Sketch {
 
         public synchronized void addShape(Integer id, Shape shape) {
             shapes.put(id, shape);
+        }
+
+
+        public synchronized void moveShape(int id, int dx, int dy){
+            shapes.get(id).moveBy(dx, dy);
+        }
+
+        public synchronized void recolorShape(int id, Color color){
+            shapes.get(id).setColor(color);
         }
 
         public synchronized void removeShape(int id) {
