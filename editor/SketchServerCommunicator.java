@@ -65,13 +65,13 @@ public class SketchServerCommunicator extends Thread {
 			System.out.println("command len: " + commands.length);
 			System.out.println();
 
-			// Format: Command ID shape x1 y1 x2 y2 ColorInt
-			// Example Draw msg: DRAW 000001 ellipse 1 2 600 600 -12332
+			// Format: Command shape x1 y1 x2 y2 ColorInt
+			// Example Draw msg: DRAW ellipse 1 2 600 600 -12332
 
-			String[] shapeParams = Arrays.copyOfRange(commands, 2, commands.length);
+			String[] shapeParams = Arrays.copyOfRange(commands, 1, commands.length);
 
 			String shapeType = shapeParams[0];
-			int id = Integer.parseInt(commands[1]);
+			int id = server.getNextIDAndIncrement();
 			int x1 = Integer.parseInt(shapeParams[1]);
 			int y1 = Integer.parseInt(shapeParams[2]);
 			int x2 = Integer.parseInt(shapeParams[3]);
@@ -90,12 +90,15 @@ public class SketchServerCommunicator extends Thread {
 				//fill in the rest of the polyline here
 			}
 
-			if (shape != null) server.getSketch().addShape(id, shape);
+			if (shape != null) {
+				server.getSketch().addShape(id, shape);
+				msg = "DRAW " + id + " " + shape;
+			}
 		}
 
-		else if (commands[0].equals("MOVE")){ 		// MOVE ID OX OY NX NY
+		else if (commands[0].equals("MOVE")){ 		// MOVE ID NX NY
 
-			int id = Integer.parseInt(commands[0]);
+			int id = Integer.parseInt(commands[1]);
 			int dx = Integer.parseInt(commands[2]);
 			int dy = Integer.parseInt(commands[3]);
 
@@ -103,12 +106,13 @@ public class SketchServerCommunicator extends Thread {
 
 
 		} else if (commands[0].equals("REPAINT")){ // REPAINT ID NEWCOLOR
-			server.recolorShape(Integer.parseInt(commands[1]), new Color (Integer.parseInt(commands[2])));
+			server.recolorShape(Integer.parseInt(commands[1]), new Color(Integer.parseInt(commands[2])));
 
 
 		} else if (commands[0].equals("DELETE")) { 		// DELETE ID
 			server.removeShape(Integer.parseInt(commands[1]));
 		}
+
 		server.broadcast(msg);
 	}
 }

@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -21,8 +20,11 @@ public class Sketch {
                 return shapes.get(id);
         }
 
-        public synchronized List<Shape> getListOfShapes() {
-            return new ArrayList<>(shapes.values());
+        public synchronized List<Shape> getListOfShapesLowToHigh() {
+            return shapes.navigableKeySet()
+                    .stream()
+                    .map(key -> shapes.get(key))
+                    .toList();
         }
 
         public synchronized void addShape(Integer id, Shape shape) {

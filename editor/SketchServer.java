@@ -19,11 +19,17 @@ public class SketchServer {
 	public SketchServer(ServerSocket listen) {
 		this.listen = listen;
 		sketch = new Sketch();
-		comms = new ArrayList<SketchServerCommunicator>();
+		comms = new ArrayList<>();
 	}
 
 	public Sketch getSketch() {
 		return sketch;
+	}
+
+	public synchronized int getNextIDAndIncrement() {
+		int curID = nextID;
+		nextID++;
+		return curID;
 	}
 
 	/**
@@ -42,19 +48,25 @@ public class SketchServer {
 	public synchronized void addShape(Shape shape){
 		sketch.addShape(nextID, shape); // need to
 		nextID++;
+		System.out.println("added shape in sketch: " + shape);
+
 	}
 
 	public synchronized void removeShape(int id){
 		sketch.removeShape(id);
+		System.out.println("removed shape id: " + id);
 	}
 
 	public synchronized void moveShape(int id, int dx, int dy){
-		sketch.moveShape(nextID, dx, dy);
+		sketch.moveShape(id, dx, dy);
+		System.out.println("moved shape in sketch. id: " + id + " moved by " + dx + ", "+ dy);
 	}
 
 	public synchronized void recolorShape(int id, Color color){
 		sketch.recolorShape(id, color);
+		System.out.println("recolored shape in sketch. id: " + id + " color: "+ color);
 	}
+
 
 	/**
 	 * Adds the communicator to the list of current communicators

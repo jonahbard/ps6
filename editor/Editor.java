@@ -172,7 +172,7 @@ public class Editor extends JFrame {
 	 * along with the object currently being drawn in this editor (not yet part of the sketch)
 	 */
 	public void drawSketch(Graphics g) {
-		for (Shape shape : sketch.getListOfShapes()) {
+		for (Shape shape : sketch.getListOfShapesLowToHigh()) {
 			shape.draw(g);
 		}
 
