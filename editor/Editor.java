@@ -25,6 +25,7 @@ public class Editor extends JFrame {
 	public enum Mode {
 		DRAW, MOVE, RECOLOR, DELETE
 	}
+
 	private Mode mode = Mode.DRAW;				// drawing/moving/recoloring/deleting objects
 	private String shapeType = "ellipse";		// type of object to add
 
@@ -78,8 +79,8 @@ public class Editor extends JFrame {
 	private JComponent setupCanvas() {
 		JComponent canvas = new JComponent() {
 			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				drawSketch(g);
+			super.paintComponent(g);
+			drawSketch(g);
 			}
 		};
 		
@@ -174,6 +175,13 @@ public class Editor extends JFrame {
 	 */
 	public void drawSketch(Graphics g) {
 		// TODO: YOUR CODE HERE
+		for (Shape shape : sketch.getListOfShapes()) {
+			shape.draw(g);
+		}
+
+		if (curr != null) {
+			curr.draw(g);
+		}
 	}
 
 	// Helpers for event handlers
@@ -186,41 +194,47 @@ public class Editor extends JFrame {
 	 * in deleting mode, (request to) delete clicked shape
 	 */
 	private void handlePress(Point p) {
+		int curX = (int) p.getX(), curY = (int) p.getY();
 		switch (mode) {
 			case DRAW -> {
-				if (shapeType.equals("ellipse")) {
-					curr = new Ellipse((int) p.getX(), (int) p.getY(), color);
-				}
-				else if (shapeType.equals("freehand")) {
-
-				}
-				else if (shapeType.equals("rectangle")) {
-
-				}
-				else if (shapeType.equals("segment")) {
-
-				}
-//				shape = new Ellipse((int) p.getX(), (int) p.getY(), color);
+                switch (shapeType) {
+                    case "ellipse" -> curr = new Ellipse(curX, curY, color);
+                    case "freehand" -> curr = new Polyline(curX, curY, color);
+                    case "rectangle" -> curr = new Rectangle(curX, curY, color);
+                    case "segment" -> curr = new Segment(curX, curY, color);
+                }
 				drawFrom = p;
 			}
 			case MOVE -> {
-//				if (shape != null && shape.contains((int) p.getX(), (int) p.getY())) {
-//					moveFrom = p;
-//				}
+				Integer id = sketch.getIDOfShapeOnTop(curX, curY);
+				if (id != null) {
+					movingId = id;
+					moveFrom = p;
+				}
 			}
 			case RECOLOR -> {
-//				if (shape.contains((int) p.getX(), (int) p.getY())) {
-//					shape.setColor(color);
-//				}
+				Integer id = sketch.getIDOfShapeOnTop(curX, curY);
+				if (id != null) {
+					sketch.getShape(id).setColor(color);
+				}
 			}
 			case DELETE -> {
-//				if (shape.contains((int) p.getX(), (int) p.getY())) {
-//					shape = null;
-//				}
+				Integer id = sketch.getIDOfShapeOnTop(curX, curY);
+				if (id != null) {
+					sketch.removeShape(id);
+				}
 			}
 		}
 
 		repaint();
+	}
+
+	public void callRepaint() {
+		repaint();
+	}
+
+	public void clearCurrentShape() {
+		curr = null;
 	}
 
 	/**
@@ -229,20 +243,20 @@ public class Editor extends JFrame {
 	 * in moving mode, (request to) drag the object
 	 */
 	private void handleDrag(Point p) {
-		// In drawing mode, revise the shape as it is stretched out
-		// In moving mode, shift the object and keep track of where next step is from
-		// Be sure to refresh the canvas (repaint) if the appearance has changed
+		int curX = (int) p.getX(), curY = (int) p.getY();
+
 		switch (mode) {
 			case DRAW -> {
-//				if (shape != null && drawFrom != null) {
-//					shape.setCorners((int) drawFrom.getX(), (int) drawFrom.getY(), (int) p.getX(), (int) p.getY());
-//				}
+				if (curr != null && drawFrom != null) {
+					int ox = (int) drawFrom.getX(), oy = (int) drawFrom.getY();
+					curr.drawDrag(ox, oy, curX, curY);
+				}
 			}
 			case MOVE -> {
-//				if (shape != null && moveFrom != null) {
-//					shape.moveBy((int) (p.getX() - moveFrom.getX()), (int) (p.getY() - moveFrom.getY()));
-//					moveFrom = p;
-//				}
+				if (movingId != -1 && moveFrom != null) {
+					int ox = (int) moveFrom.getX(), oy = (int) moveFrom.getY();
+					sketch.getShape(movingId).moveBy(curX - ox, curY - oy);
+				}
 			}
 		}
 
@@ -257,9 +271,11 @@ public class Editor extends JFrame {
 	private void handleRelease() {
 		switch (mode) {
 			case DRAW -> {
+				comm.sendDrawMessageToServer(curr);
 				drawFrom = null;
 			}
 			case MOVE -> {
+				movingId = -1;
 				moveFrom = null;
 			}
 		}

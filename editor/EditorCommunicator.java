@@ -1,5 +1,7 @@
+import java.awt.*;
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 
 /**
  * Handles communication to/from the server for the editor
@@ -43,9 +45,16 @@ public class EditorCommunicator extends Thread {
 	 */
 	public void run() {
 		try {
+			String line;
+			while ((line = in.readLine()) != null) {
+				handleMessageFromServer(line);
+			}
+
+			// while not sending data TO the server, handle messages FROM the server
+			//should constantly set the "sketch" in Editor to be the SketchServer's sketch
 			// Handle messages
 			// TODO: YOUR CODE HERE
-			throw new IOException("//TODO: Get rid of this");
+//			throw new IOException("temp");
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -53,9 +62,55 @@ public class EditorCommunicator extends Thread {
 		finally {
 			System.out.println("server hung up");
 		}
-	}	
+	}
+
+	public void handleMessageFromServer(String message) {
+		System.out.println(message);
+		String[] commands = message.split(" ");
+		if (commands[0].equals("DRAW")) {
+			System.out.println("commands: " + Arrays.toString(commands));
+			System.out.println("command len: " + commands.length);
+			System.out.println();
+//			System.out.println(commands);
+
+			// Format: Command ID shape x1 y1 x2 y2 ColorInt
+			// Example Draw msg: DRAW 000001 ellipse 1 2 600 600
+
+
+			boolean hasID = commands.length == 8;
+
+			int id = hasID ? Integer.parseInt(commands[1]) : (int) (Math.random() * 1000);
+
+			String[] shapeParams = Arrays.copyOfRange(commands, hasID ? 2 : 1, commands.length);
+
+			String shapeType = shapeParams[0];
+			int x1 = Integer.parseInt(shapeParams[1]);
+			int y1 = Integer.parseInt(shapeParams[2]);
+			int x2 = Integer.parseInt(shapeParams[3]);
+			int y2 = Integer.parseInt(shapeParams[4]);
+			Color color = new Color(Integer.parseInt(shapeParams[5]));
+
+			Shape shape = null;
+			if (shapeType.equals("ellipse")) {
+				shape = new Ellipse(x1, y1, x2, y2, color);
+			}
+
+			if (shape != null) editor.getSketch().addShape(id, shape);
+
+
+
+		} else if (commands[0].equals("MOVE")){
+
+		}
+		editor.callRepaint();
+		editor.clearCurrentShape();
+	}
 
 	// Send editor requests to the server
-	// TODO: YOUR CODE HERE
+	// TODO: YOUR CODE HERE; CREATE FUNCTIONS FOR EACH TYPE OF MESSAGE TO SEND
+
+	public void sendDrawMessageToServer(Shape shape) {
+		out.println("DRAW " + shape.toString());
+	}
 	
 }

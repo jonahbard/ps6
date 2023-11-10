@@ -1,25 +1,42 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 public class Sketch {
 
         //need to have some kind of shape identification
 
-        List<Shape> shapes;
+        private TreeMap<Integer, Shape> shapes;
 
         public Sketch() {
-            shapes = new ArrayList<>();
+            shapes = new TreeMap<>();
         }
 
-        public List<Shape> getShapes() {
-            return shapes;
+//        public TreeMap<Integer, Shape> getShapes() {
+//            return shapes;
+//        }
+
+        public synchronized Shape getShape(int id) {
+                return shapes.get(id);
         }
 
-        public void addShape(Shape shape) {
-            shapes.add(shape);
+        public synchronized List<Shape> getListOfShapes() {
+            return new ArrayList<>(shapes.values());
         }
 
-        public void removeShape(Shape shape) {
-            shapes.remove(shape);
+        public synchronized void addShape(Integer id, Shape shape) {
+            shapes.put(id, shape);
+        }
+
+        public synchronized void removeShape(int id) {
+            shapes.remove(id);
+        }
+
+        public Integer getIDOfShapeOnTop(int x, int y) {
+            for (Integer id : shapes.descendingKeySet()) {
+                Shape shape = shapes.get(id);
+                if (shape.contains(x, y)) return id;
+            }
+            return null;
         }
 }

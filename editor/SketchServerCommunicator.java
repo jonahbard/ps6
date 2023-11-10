@@ -38,6 +38,11 @@ public class SketchServerCommunicator extends Thread {
 
 			// Tell the client the current state of the world
 			// TODO: YOUR CODE HERE
+			String line;
+			
+			while ((line = in.readLine()) != null) {
+				out.println(server.getSketch());
+			}
 
 			// Keep getting and handling messages from the client
 			// TODO: YOUR CODE HERE
@@ -47,8 +52,7 @@ public class SketchServerCommunicator extends Thread {
 			out.close();
 			in.close();
 			sock.close();
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

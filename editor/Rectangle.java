@@ -31,8 +31,6 @@ public class Rectangle implements Shape {
 		this.color = color;
 	}
 
-
-	// TODO: YOUR CODE HERE
 	@Override
 	public void moveBy(int dx, int dy) {
 		x1 += dx; y1 += dy;

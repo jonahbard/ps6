@@ -15,7 +15,6 @@ public class Polyline implements Shape {
 
 	private List<Segment> segments;
 	private Color color;
-	// TODO: YOUR CODE HERE
 
 	public Polyline(int x1, int y1, Color color) {
 		segments = new ArrayList<>();
