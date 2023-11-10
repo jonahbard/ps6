@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -174,7 +172,6 @@ public class Editor extends JFrame {
 	 * along with the object currently being drawn in this editor (not yet part of the sketch)
 	 */
 	public void drawSketch(Graphics g) {
-		// TODO: YOUR CODE HERE
 		for (Shape shape : sketch.getListOfShapes()) {
 			shape.draw(g);
 		}
@@ -215,18 +212,28 @@ public class Editor extends JFrame {
 			case RECOLOR -> {
 				Integer id = sketch.getIDOfShapeOnTop(curX, curY);
 				if (id != null) {
-					sketch.getShape(id).setColor(color);
+					comm.sendRecolorCommand(id, color.getRGB());
+//					sketch.getShape(id).setColor(color);
 				}
 			}
 			case DELETE -> {
 				Integer id = sketch.getIDOfShapeOnTop(curX, curY);
 				if (id != null) {
-					sketch.removeShape(id);
+//					sketch.removeShape(id);
+					comm.sendDeleteCommand(id);
 				}
 			}
 		}
 
 		repaint();
+	}
+
+	public void recolorShape(int id, Color newColor) {
+		sketch.getShape(id).setColor(newColor);
+	}
+
+	public void deleteShape(int id) {
+		sketch.removeShape(id);
 	}
 
 	/**
@@ -247,7 +254,7 @@ public class Editor extends JFrame {
 			case MOVE -> {
 				if (movingId != -1 && moveFrom != null) {
 					int ox = (int) moveFrom.getX(), oy = (int) moveFrom.getY();
-					comm.sendMoveCommand(movingId, ox, oy, curX, curY);
+					comm.sendMoveCommand(movingId, curX - ox, curY - oy);
 					moveFrom = p;
 				}
 			}
@@ -256,8 +263,8 @@ public class Editor extends JFrame {
 		repaint();
 	}
 
-	public void moveShape(int id, int ox, int oy, int nx, int ny) {
-		sketch.getShape(id).moveBy(nx - ox, ny - oy);
+	public void moveShape(int id, int dx, int dy) {
+		sketch.getShape(id).moveBy(dx, dy);
 	}
 
 	/**

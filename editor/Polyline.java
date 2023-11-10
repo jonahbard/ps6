@@ -66,10 +66,13 @@ public class Polyline implements Shape {
 	public String toString() {
 		String returnLine = "polyline ";
 
-		for (Segment s: segments) {
-			returnLine += "\n\t" + s.toString();
-		}
-		returnLine += "\n polyline color:" + color.getRGB();
+		//		for (Segment s: segments) {
+
+
+//		for (Segment s: segments) {
+//			returnLine += "\n\t" + s.toString();
+//		}
+//		returnLine += "\n polyline color:" + color.getRGB();
 
 		return returnLine;
 	}
