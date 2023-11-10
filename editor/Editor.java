@@ -229,14 +229,6 @@ public class Editor extends JFrame {
 		repaint();
 	}
 
-	public void callRepaint() {
-		repaint();
-	}
-
-	public void clearCurrentShape() {
-		curr = null;
-	}
-
 	/**
 	 * Helper method for drag to new point
 	 * In drawing mode, update the other corner of the object;
@@ -255,12 +247,17 @@ public class Editor extends JFrame {
 			case MOVE -> {
 				if (movingId != -1 && moveFrom != null) {
 					int ox = (int) moveFrom.getX(), oy = (int) moveFrom.getY();
-					sketch.getShape(movingId).moveBy(curX - ox, curY - oy);
+					comm.sendMoveCommand(movingId, ox, oy, curX, curY);
+					moveFrom = p;
 				}
 			}
 		}
 
 		repaint();
+	}
+
+	public void moveShape(int id, int ox, int oy, int nx, int ny) {
+		sketch.getShape(id).moveBy(nx - ox, ny - oy);
 	}
 
 	/**
@@ -282,6 +279,16 @@ public class Editor extends JFrame {
 
 		repaint();
 	}
+
+
+	public void callRepaint() {
+		repaint();
+	}
+
+	public void clearCurrentShape() {
+		curr = null;
+	}
+
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {

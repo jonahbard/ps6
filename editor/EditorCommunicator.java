@@ -71,19 +71,16 @@ public class EditorCommunicator extends Thread {
 			System.out.println("commands: " + Arrays.toString(commands));
 			System.out.println("command len: " + commands.length);
 			System.out.println();
-//			System.out.println(commands);
 
 			// Format: Command ID shape x1 y1 x2 y2 ColorInt
-			// Example Draw msg: DRAW 000001 ellipse 1 2 600 600
-
+			// Example Draw msg: DRAW 000001 ellipse 1 2 600 600 -12332
 
 			boolean hasID = commands.length == 8;
-
-			int id = hasID ? Integer.parseInt(commands[1]) : (int) (Math.random() * 1000);
 
 			String[] shapeParams = Arrays.copyOfRange(commands, hasID ? 2 : 1, commands.length);
 
 			String shapeType = shapeParams[0];
+			int id = hasID ? Integer.parseInt(commands[1]) : (int) (Math.random() * 1000);
 			int x1 = Integer.parseInt(shapeParams[1]);
 			int y1 = Integer.parseInt(shapeParams[2]);
 			int x2 = Integer.parseInt(shapeParams[3]);
@@ -96,14 +93,31 @@ public class EditorCommunicator extends Thread {
 			}
 
 			if (shape != null) editor.getSketch().addShape(id, shape);
+			editor.clearCurrentShape();
 
 
-
-		} else if (commands[0].equals("MOVE")){
 
 		}
-		editor.callRepaint();
-		editor.clearCurrentShape();
+		// MOVE ID OX OY NX NY
+		else if (commands[0].equals("MOVE")){
+			int id = Integer.parseInt(commands[0]);
+			int ox = Integer.parseInt(commands[2]);
+			int oy = Integer.parseInt(commands[3]);
+			int nx = Integer.parseInt(commands[4]);
+			int ny = Integer.parseInt(commands[5]);
+
+			editor.moveShape(id, ox, oy, nx, ny);
+		}
+		// REPAINT ID NEWCOLOR
+		else if (commands[0].equals("REPAINT")){
+
+		}
+		// DELETE ID
+		else if (commands[0].equals("DELETE")) {
+
+		}
+
+			editor.callRepaint();
 	}
 
 	// Send editor requests to the server
@@ -111,6 +125,14 @@ public class EditorCommunicator extends Thread {
 
 	public void sendDrawMessageToServer(Shape shape) {
 		out.println("DRAW " + shape.toString());
+	}
+
+	public void sendMoveCommand(int id, int ox, int oy, int nx, int ny) {
+		out.println("MOVE " + id + " " + ox + " " + oy + " " + nx + " " + ny + " ");
+	}
+
+	public void sendRepaintCommand(int id, int newColor) {
+		out.println("REPAINT " + id + " " + newColor);
 	}
 	
 }
