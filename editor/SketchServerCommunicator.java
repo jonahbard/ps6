@@ -46,8 +46,6 @@ public class SketchServerCommunicator extends Thread {
 			}
 			out.println(server.getSketch());
 
-
-
 			// Keep getting and handling messages from the client
 			// TODO: YOUR CODE HERE
 
@@ -94,21 +92,21 @@ public class SketchServerCommunicator extends Thread {
 
 			if (shape != null) server.getSketch().addShape(id, shape);
 		}
-		// MOVE ID OX OY NX NY
-		else if (commands[0].equals("MOVE")){
+
+		else if (commands[0].equals("MOVE")){ 		// MOVE ID OX OY NX NY
+
 			int id = Integer.parseInt(commands[0]);
 			int dx = Integer.parseInt(commands[2]);
 			int dy = Integer.parseInt(commands[3]);
 
 			server.moveShape(id, dx, dy);
-		}
 
-		// REPAINT ID NEWCOLOR
-		else if (commands[0].equals("REPAINT")){
+
+		} else if (commands[0].equals("REPAINT")){ // REPAINT ID NEWCOLOR
 			server.recolorShape(Integer.parseInt(commands[1]), new Color (Integer.parseInt(commands[2])));
-		}
-		// DELETE ID
-		else if (commands[0].equals("DELETE")) {
+
+
+		} else if (commands[0].equals("DELETE")) { 		// DELETE ID
 			server.removeShape(Integer.parseInt(commands[1]));
 		}
 		server.broadcast(msg);

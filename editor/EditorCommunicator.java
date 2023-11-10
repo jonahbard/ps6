@@ -84,7 +84,19 @@ public class EditorCommunicator extends Thread {
 
 			Shape shape = null;
 			if (shapeType.equals("polyline")) {
+				int x1 = Integer.parseInt(shapeParams[1]);
+				int y1 = Integer.parseInt(shapeParams[2]);
+				Color color = new Color(Integer.parseInt(shapeParams[shapeParams.length-1]));
+				shape = new Polyline(x1, y1, color);
 
+				for (int i = 3; i < shapeParams.length-1; i+=2){
+					shape.drawDrag(
+						Integer.parseInt(shapeParams[i-2]),
+						Integer.parseInt(shapeParams[i-1]),
+						Integer.parseInt(shapeParams[i]),
+						Integer.parseInt(shapeParams[i+1])
+					);
+				}
 			}
 			else {
 				int x1 = Integer.parseInt(shapeParams[1]);
