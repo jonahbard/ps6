@@ -31,19 +31,23 @@ public class Segment implements Shape {
 	}
 
 	public void drawDrag(int ox, int oy, int nx, int ny) { //right now it doesn't handle the first two parameters
+		this.x1 = Math.min(ox, nx);
+		this.y1 = Math.min(oy, ny);
+		this.x2 = Math.max(ox, nx);
+		this.y2 = Math.max(oy, ny);
 
-		if (nx>=x1) { // if dragged to the right or straight up/down
-			x2 = nx;
-		} else { // otherwise switch to ensure that x2 > x1
-			x2 = x1;
-			x1 = nx;
-		}
-		if (ny>=x1){ // if dragged down or straight left/right
-			y2 = ny;
-		} else {     // otherwise switch to ensure that y2 > y1
-			y2 = y1;
-			y1 = ny;
-		}
+//		if (nx>=x1) { // if dragged to the right or straight up/down
+//			x2 = nx;
+//		} else { // otherwise switch to ensure that x2 > x1
+//			x2 = x1;
+//			x1 = nx;
+//		}
+//		if (ny>=x1){ // if dragged down or straight left/right
+//			y2 = ny;
+//		} else {     // otherwise switch to ensure that y2 > y1
+//			y2 = y1;
+//			y1 = ny;
+//		}
 	}
 
 	/**

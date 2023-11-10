@@ -45,6 +45,7 @@ public class EditorCommunicator extends Thread {
 		try {
 			// Handle messages
 			// TODO: YOUR CODE HERE
+			throw new IOException("//TODO: Get rid of this");
 		}
 		catch (IOException e) {
 			e.printStackTrace();

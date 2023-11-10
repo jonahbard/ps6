@@ -27,6 +27,11 @@ public class Editor extends JFrame {
 	}
 	private Mode mode = Mode.DRAW;				// drawing/moving/recoloring/deleting objects
 	private String shapeType = "ellipse";		// type of object to add
+
+//	private enum ShapeType {
+//		ELLIPSE, POLYLINE, RECTANGLE, SEGMENT
+//	}
+
 	private Color color = Color.black;			// current drawing color
 
 	// Drawing state
@@ -181,7 +186,41 @@ public class Editor extends JFrame {
 	 * in deleting mode, (request to) delete clicked shape
 	 */
 	private void handlePress(Point p) {
-		// TODO: YOUR CODE HERE
+		switch (mode) {
+			case DRAW -> {
+				if (shapeType.equals("ellipse")) {
+					curr = new Ellipse((int) p.getX(), (int) p.getY(), color);
+				}
+				else if (shapeType.equals("freehand")) {
+
+				}
+				else if (shapeType.equals("rectangle")) {
+
+				}
+				else if (shapeType.equals("segment")) {
+
+				}
+//				shape = new Ellipse((int) p.getX(), (int) p.getY(), color);
+				drawFrom = p;
+			}
+			case MOVE -> {
+//				if (shape != null && shape.contains((int) p.getX(), (int) p.getY())) {
+//					moveFrom = p;
+//				}
+			}
+			case RECOLOR -> {
+//				if (shape.contains((int) p.getX(), (int) p.getY())) {
+//					shape.setColor(color);
+//				}
+			}
+			case DELETE -> {
+//				if (shape.contains((int) p.getX(), (int) p.getY())) {
+//					shape = null;
+//				}
+			}
+		}
+
+		repaint();
 	}
 
 	/**
@@ -190,7 +229,24 @@ public class Editor extends JFrame {
 	 * in moving mode, (request to) drag the object
 	 */
 	private void handleDrag(Point p) {
-		// TODO: YOUR CODE HERE
+		// In drawing mode, revise the shape as it is stretched out
+		// In moving mode, shift the object and keep track of where next step is from
+		// Be sure to refresh the canvas (repaint) if the appearance has changed
+		switch (mode) {
+			case DRAW -> {
+//				if (shape != null && drawFrom != null) {
+//					shape.setCorners((int) drawFrom.getX(), (int) drawFrom.getY(), (int) p.getX(), (int) p.getY());
+//				}
+			}
+			case MOVE -> {
+//				if (shape != null && moveFrom != null) {
+//					shape.moveBy((int) (p.getX() - moveFrom.getX()), (int) (p.getY() - moveFrom.getY()));
+//					moveFrom = p;
+//				}
+			}
+		}
+
+		repaint();
 	}
 
 	/**
@@ -199,7 +255,16 @@ public class Editor extends JFrame {
 	 * in moving mode, release it		
 	 */
 	private void handleRelease() {
-		// TODO: YOUR CODE HERE
+		switch (mode) {
+			case DRAW -> {
+				drawFrom = null;
+			}
+			case MOVE -> {
+				moveFrom = null;
+			}
+		}
+
+		repaint();
 	}
 
 	public static void main(String[] args) {
