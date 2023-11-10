@@ -67,13 +67,13 @@ public class Polyline implements Shape {
 		String returnLine = "polyline ";
 
 		for (Segment s: segments) {
-			returnLine += s.getXStart() + " " + s.getYStart();
+			returnLine += s.getXStart() + " " + s.getYStart() + " ";
 		}
 
 		Segment lastSeg = segments.get(segments.size() - 1);
-		returnLine += " " + lastSeg.getXEnd() + lastSeg.getYEnd();
+		returnLine += lastSeg.getXEnd() + " " + lastSeg.getYEnd() + " ";
 
-		returnLine += " " + color.getRGB();
+		returnLine += color.getRGB();
 
 		return returnLine;
 	}
