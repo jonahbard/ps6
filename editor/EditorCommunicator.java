@@ -76,20 +76,36 @@ public class EditorCommunicator extends Thread {
 			// Example Draw msg: DRAW 000001 ellipse 1 2 600 600 -12332
 
 			boolean hasID = commands.length == 8;
+			int id = hasID ? Integer.parseInt(commands[1]) : (int) (Math.random() * 1000);
 
 			String[] shapeParams = Arrays.copyOfRange(commands, hasID ? 2 : 1, commands.length);
 
 			String shapeType = shapeParams[0];
-			int id = hasID ? Integer.parseInt(commands[1]) : (int) (Math.random() * 1000);
-			int x1 = Integer.parseInt(shapeParams[1]);
-			int y1 = Integer.parseInt(shapeParams[2]);
-			int x2 = Integer.parseInt(shapeParams[3]);
-			int y2 = Integer.parseInt(shapeParams[4]);
-			Color color = new Color(Integer.parseInt(shapeParams[5]));
 
 			Shape shape = null;
 			if (shapeType.equals("ellipse")) {
+				int x1 = Integer.parseInt(shapeParams[1]);
+				int y1 = Integer.parseInt(shapeParams[2]);
+				int x2 = Integer.parseInt(shapeParams[3]);
+				int y2 = Integer.parseInt(shapeParams[4]);
+				Color color = new Color(Integer.parseInt(shapeParams[5]));
 				shape = new Ellipse(x1, y1, x2, y2, color);
+			}
+			else if (shapeType.equals("rectangle")) {
+				int x1 = Integer.parseInt(shapeParams[1]);
+				int y1 = Integer.parseInt(shapeParams[2]);
+				int x2 = Integer.parseInt(shapeParams[3]);
+				int y2 = Integer.parseInt(shapeParams[4]);
+				Color color = new Color(Integer.parseInt(shapeParams[5]));
+				shape = new Rectangle(x1, y1, x2, y2, color);
+			}
+			else if (shapeType.equals("segment")) {
+				int x1 = Integer.parseInt(shapeParams[1]);
+				int y1 = Integer.parseInt(shapeParams[2]);
+				int x2 = Integer.parseInt(shapeParams[3]);
+				int y2 = Integer.parseInt(shapeParams[4]);
+				Color color = new Color(Integer.parseInt(shapeParams[5]));
+				shape = new Segment(x1, y1, x2, y2, color);
 			}
 
 			if (shape != null) editor.getSketch().addShape(id, shape);
@@ -100,39 +116,50 @@ public class EditorCommunicator extends Thread {
 		}
 		// MOVE ID OX OY NX NY
 		else if (commands[0].equals("MOVE")){
-			int id = Integer.parseInt(commands[0]);
-			int ox = Integer.parseInt(commands[2]);
-			int oy = Integer.parseInt(commands[3]);
-			int nx = Integer.parseInt(commands[4]);
-			int ny = Integer.parseInt(commands[5]);
+			int id = Integer.parseInt(commands[1]);
+			int dx = Integer.parseInt(commands[2]);
+			int dy = Integer.parseInt(commands[3]);
 
-			editor.moveShape(id, ox, oy, nx, ny);
+			editor.moveShape(id, dx, dy);
 		}
-		// REPAINT ID NEWCOLOR
-		else if (commands[0].equals("REPAINT")){
+		// RECOLOR ID NEWCOLOR
+		else if (commands[0].equals("RECOLOR")){
+			int id = Integer.parseInt(commands[1]);
+			Color color = new Color(Integer.parseInt(commands[2]));
+
+			editor.recolorShape(id, color);
 
 		}
 		// DELETE ID
 		else if (commands[0].equals("DELETE")) {
+			int id = Integer.parseInt(commands[1]);
 
+			editor.deleteShape(id);
 		}
 
-			editor.callRepaint();
+		editor.callRepaint();
 	}
 
 	// Send editor requests to the server
-	// TODO: YOUR CODE HERE; CREATE FUNCTIONS FOR EACH TYPE OF MESSAGE TO SEND
-
 	public void sendDrawMessageToServer(Shape shape) {
 		out.println("DRAW " + shape.toString());
 	}
 
-	public void sendMoveCommand(int id, int ox, int oy, int nx, int ny) {
-		out.println("MOVE " + id + " " + ox + " " + oy + " " + nx + " " + ny + " ");
+//	public void sendMoveCommand(int id, int ox, int oy, int nx, int ny) {
+//		out.println("MOVE " + id + " " + ox + " " + oy + " " + nx + " " + ny + " ");
+//	}
+
+	public void sendMoveCommand(int id, int dy, int dx) {
+		out.println("MOVE " + id + " " + dy + " " + dx);
 	}
 
-	public void sendRepaintCommand(int id, int newColor) {
-		out.println("REPAINT " + id + " " + newColor);
+
+	public void sendRecolorCommand(int id, int newColor) {
+		out.println("RECOLOR " + id + " " + newColor);
+	}
+
+	public void sendDeleteCommand(int id) {
+		out.println("DELETE " + id);
 	}
 	
 }
