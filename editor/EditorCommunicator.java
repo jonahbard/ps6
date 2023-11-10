@@ -83,29 +83,19 @@ public class EditorCommunicator extends Thread {
 			String shapeType = shapeParams[0];
 
 			Shape shape = null;
-			if (shapeType.equals("ellipse")) {
-				int x1 = Integer.parseInt(shapeParams[1]);
-				int y1 = Integer.parseInt(shapeParams[2]);
-				int x2 = Integer.parseInt(shapeParams[3]);
-				int y2 = Integer.parseInt(shapeParams[4]);
-				Color color = new Color(Integer.parseInt(shapeParams[5]));
-				shape = new Ellipse(x1, y1, x2, y2, color);
+			if (shapeType.equals("polyline")) {
+
 			}
-			else if (shapeType.equals("rectangle")) {
+			else {
 				int x1 = Integer.parseInt(shapeParams[1]);
 				int y1 = Integer.parseInt(shapeParams[2]);
 				int x2 = Integer.parseInt(shapeParams[3]);
 				int y2 = Integer.parseInt(shapeParams[4]);
 				Color color = new Color(Integer.parseInt(shapeParams[5]));
-				shape = new Rectangle(x1, y1, x2, y2, color);
-			}
-			else if (shapeType.equals("segment")) {
-				int x1 = Integer.parseInt(shapeParams[1]);
-				int y1 = Integer.parseInt(shapeParams[2]);
-				int x2 = Integer.parseInt(shapeParams[3]);
-				int y2 = Integer.parseInt(shapeParams[4]);
-				Color color = new Color(Integer.parseInt(shapeParams[5]));
-				shape = new Segment(x1, y1, x2, y2, color);
+
+				if (shapeType.equals("ellipse")) shape = new Ellipse(x1, y1, x2, y2, color);
+				else if (shapeType.equals("rectangle")) shape = new Rectangle(x1, y1, x2, y2, color);
+				else if (shapeType.equals("segment")) shape = new Segment(x1, y1, x2, y2, color);
 			}
 
 			if (shape != null) editor.getSketch().addShape(id, shape);
