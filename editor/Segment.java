@@ -99,6 +99,14 @@ public class Segment implements Shape {
 		g.drawLine(x1, y1, x2, y2);
 	}
 
+	public int getXStart() { return x1;}
+	public int getYStart() { return y1;}
+
+	public int getXEnd() { return x2;}
+	public int getYEnd() { return y2;}
+
+
+
 
 	@Override
 	public String toString() {
