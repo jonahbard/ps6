@@ -30,6 +30,13 @@ public class Segment implements Shape {
 		this.color = color;
 	}
 
+	/**
+	 * Handle drag drawing by updating the end (second point) of the segment based on the new coorindates
+	 * @param ox
+	 * @param oy
+	 * @param nx
+	 * @param ny
+	 */
 	public void drawDrag(int ox, int oy, int nx, int ny) { //right now it doesn't handle the first two parameters
 		setEnd(nx, ny);
 	}
@@ -47,23 +54,42 @@ public class Segment implements Shape {
 	public void setEnd(int x2, int y2) {
 		this.x2 = x2; this.y2 = y2;
 	}
-	
+
+	/**
+	 * Move the segment by dx,dy
+	 * @param dx
+	 * @param dy
+	 */
 	@Override
 	public void moveBy(int dx, int dy) {
 		x1 += dx; y1 += dy;
 		x2 += dx; y2 += dy;
 	}
 
+	/**
+	 * Get the color of the segment
+	 * @return
+	 */
 	@Override
 	public Color getColor() {
 		return color;
 	}
 
+	/**
+	 * Set the color of the segment
+	 * @param color The shape's color
+	 */
 	@Override
 	public void setColor(Color color) {
 		this.color = color;		
 	}
-	
+
+	/**
+	 * Check if the segment "contains" the point (x,y)
+	 * @param x
+	 * @param y
+	 * @return
+	 */
 	@Override
 	public boolean contains(int x, int y) {
 		return pointToSegmentDistance(x, y, x1, y1, x2, y2) <= 3;
@@ -92,22 +118,27 @@ public class Segment implements Shape {
 	public static double dist2(double x1, double y1, double x2, double y2) {
 		return (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1);
 	}
-	
+
+	/**
+	 * Draw the segment
+	 * @param g
+	 */
 	@Override
 	public void draw(Graphics g) {
 		g.setColor(color);
 		g.drawLine(x1, y1, x2, y2);
 	}
 
+	// Getters for the start and end points of the segment
 	public int getXStart() { return x1;}
 	public int getYStart() { return y1;}
-
 	public int getXEnd() { return x2;}
 	public int getYEnd() { return y2;}
 
-
-
-
+	/**
+	 * Convert the segment to a string for message passing
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		return "segment "+x1+" "+y1+" "+x2+" "+y2+" "+color.getRGB();

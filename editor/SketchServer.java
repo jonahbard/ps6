@@ -16,16 +16,28 @@ public class SketchServer {
 	private ArrayList<SketchServerCommunicator> comms;	// all the connections with clients
 	private Sketch sketch;								// the state of the world
 
+	/**
+	 * Create the sketch server, with an empty sketch on a serversocket
+	 * @param listen
+	 */
 	public SketchServer(ServerSocket listen) {
 		this.listen = listen;
 		sketch = new Sketch();
 		comms = new ArrayList<>();
 	}
 
-	public Sketch getSketch() {
+	/**
+	 * Get the sketch, synchronously
+	 * @return
+	 */
+	public synchronized Sketch getSketch() {
 		return sketch;
 	}
 
+	/**
+	 * Return the next ID to use, and increment the counter synchronously
+	 * @return
+	 */
 	public synchronized int getNextIDAndIncrement() {
 		int curID = nextID;
 		nextID++;
@@ -45,6 +57,7 @@ public class SketchServer {
 		}
 	}
 
+	//BELOW: 4 functions that adjust the sketch when given Shape ID / other relevant parameters
 	public synchronized void addShape(int id, Shape shape){
 		sketch.addShape(id, shape); // need to
 		System.out.println("added shape in sketch: " + shape);
@@ -75,14 +88,14 @@ public class SketchServer {
 	}
 
 	/**
-	 * Removes the communicator from the list of current communicators
+	 * Removes the given communicator from the list of current communicators
 	 */
 	public synchronized void removeCommunicator(SketchServerCommunicator comm) {
 		comms.remove(comm);
 	}
 
 	/**
-	 * Sends the message from the one communicator to all (including the originator)
+	 * Sends a message from the one communicator to all editors
 	 */
 	public synchronized void broadcast(String msg) {
 		for (SketchServerCommunicator comm : comms) {
@@ -90,6 +103,9 @@ public class SketchServer {
 		}
 	}
 
+	/***
+	 * run server
+	 */
 	public static void main(String[] args) throws Exception {
 		new SketchServer(new ServerSocket(4242)).getConnections();
 	}

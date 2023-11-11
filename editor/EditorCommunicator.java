@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.beans.IntrospectionException;
 import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
@@ -46,14 +45,13 @@ public class EditorCommunicator extends Thread {
 	 */
 	public void run() {
 		try {
+			// while not sending data TO the server, handle messages FROM the server
+			//should constantly set the "sketch" in Editor to be the SketchServer's sketch
+			// Handle messages
 			String line;
 			while ((line = in.readLine()) != null) {
 				handleMessageFromServer(line);
 			}
-
-			// while not sending data TO the server, handle messages FROM the server
-			//should constantly set the "sketch" in Editor to be the SketchServer's sketch
-			// Handle messages
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -63,46 +61,58 @@ public class EditorCommunicator extends Thread {
 		}
 	}
 
+	/**
+     * Handles a message from the server, by parsing it and then doing the appropriate action
+     * @param message
+     */
 	public void handleMessageFromServer(String message) {
-		System.out.println(message);
+
+		// Split the message into commands
 		String[] commands = message.split(" ");
-		if (commands[0].equals("SKETCH")) {
-			if (commands.length == 1) return;
+
+		// If the message is a SKETCH message, then parse the individual shapes add them all to the sketch.
+		// If the command only has SKETCH, it means the canvas is currently empty
+		if (commands[0].equals("SKETCH") && commands.length > 1) {
+			// Re-split the message because the individual shapes are separated by "|", not " "
 			commands = message.split(" ", 2);
-			System.out.println("command 0: " + commands[1]);
+
+			// Get the individual shape commands
 			String[] shapeCommandStrings = commands[1].split("\\|");
+
+			// Add each shape to the canvas
 			for (String shapeCommandString : shapeCommandStrings) {
 				String[] shapeCommands = shapeCommandString.split(" ");
 				int id = Integer.parseInt(shapeCommands[0]);
 				Shape shape = MessageParser.parseShape(Arrays.copyOfRange(shapeCommands, 1, shapeCommands.length));
-				editor.getSketch().addShape(id, shape);
+				editor.addShape(id, shape);
 			}
 		}
+
+		// If the message is a DRAW message, then parse the shape and add it to the sketch
+		// format: DRAW ID SHAPE_TYPE X1 Y1 X2 Y2 COLOR
 		else if (commands[0].equals("DRAW")) {
-			System.out.println("commands: " + Arrays.toString(commands));
-			System.out.println("command len: " + commands.length);
-			System.out.println();
 
-			// Format: Command ID shape x1 y1 x2 y2 ColorInt
-			// Example Draw msg: DRAW 000001 ellipse 1 2 600 600 -12332
-
-			boolean hasID = false;
+			// Check if the shape has an ID or not (it only wouldn't have an ID on this end if we are using the echo server)
+			boolean hasID = true;
 			try {
 				Integer.parseInt(commands[1]);
-				hasID = true;
 			}
 			catch (Exception e) {
 				hasID = false;
 			}
+
+			// Set the id or randomly generate one
 			int id = hasID ? Integer.parseInt(commands[1]) : (int) (Math.random() * 1000);
 
+			// Slice array depending on whether or not the shape was returned with an ID or not
 			String[] shapeParams = Arrays.copyOfRange(commands, hasID ? 2 : 1, commands.length);
 
 			Shape shape = MessageParser.parseShape(shapeParams);
-			if (shape != null) editor.getSketch().addShape(id, shape);
+			if (shape != null) editor.addShape(id, shape);
 			editor.clearCurrentShape();
 		}
-		// MOVE ID OX OY NX NY
+		// If the message is a MOVE message, then call the editor to move the shape in sketch
+		// format: MOVE ID OX OY NX NY
 		else if (commands[0].equals("MOVE")){
 			int id = Integer.parseInt(commands[1]);
 			int dx = Integer.parseInt(commands[2]);
@@ -111,7 +121,8 @@ public class EditorCommunicator extends Thread {
 			editor.moveShape(id, dx, dy);
 		}
 
-		// RECOLOR ID NEWCOLOR
+		// If the message is a RECOLOR message, then call the editor to recolor the shape in sketch
+		// format: RECOLOR ID NEWCOLOR
 		else if (commands[0].equals("RECOLOR")){
 			int id = Integer.parseInt(commands[1]);
 			Color color = new Color(Integer.parseInt(commands[2]));
@@ -119,35 +130,35 @@ public class EditorCommunicator extends Thread {
 			editor.recolorShape(id, color);
 
 		}
-		// DELETE ID
+
+		// If the message is a DELETE message, then call the editor to delete the shape in sketch
+		// format: DELETE ID
 		else if (commands[0].equals("DELETE")) {
 			int id = Integer.parseInt(commands[1]);
 
 			editor.deleteShape(id);
 		}
 
+		// Repaint the editor after state changing message has been processed
 		editor.callRepaint();
 	}
 
+
 	// Send editor requests to the server
+
 	public void sendDrawMessageToServer(Shape shape) {
 		out.println("DRAW " + shape.toString());
 	}
 
-//	public void sendMoveCommand(int id, int ox, int oy, int nx, int ny) {
-//		out.println("MOVE " + id + " " + ox + " " + oy + " " + nx + " " + ny + " ");
-//	}
-
-	public void sendMoveCommand(int id, int dy, int dx) {
+	public void sendMoveMessageToServer(int id, int dy, int dx) {
 		out.println("MOVE " + id + " " + dy + " " + dx);
 	}
 
-
-	public void sendRecolorCommand(int id, int newColor) {
+	public void sendRecolorMessageToServer(int id, int newColor) {
 		out.println("RECOLOR " + id + " " + newColor);
 	}
 
-	public void sendDeleteCommand(int id) {
+	public void sendDeleteMessageToServer(int id) {
 		out.println("DELETE " + id);
 	}
 	

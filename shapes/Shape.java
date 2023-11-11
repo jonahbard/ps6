@@ -6,6 +6,7 @@ import java.awt.Graphics;
  * 
  * @author Chris Bailey-Kellogg, Dartmouth CS 10, Spring 2016, based on a related concept from previous terms
  * @author CBK, revised Fall 2016
+ * @author Jonah Bard, Daniel Katz
  */
 
 public interface Shape {
@@ -14,6 +15,9 @@ public interface Shape {
 	 */
 	public void moveBy(int dx, int dy);
 
+	/**
+	 * Method to enable OOP-forward approach to drag drawing different types of shapes
+	 */
 	public void drawDrag(int ox, int oy, int nx, int ny);
 
 	/**

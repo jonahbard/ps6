@@ -39,20 +39,16 @@ public class SketchServerCommunicator extends Thread {
 			out = new PrintWriter(sock.getOutputStream(), true);
 
 			// Tell the client the current state of the world
-			// TODO: YOUR CODE HERE
-
 			out.println("SKETCH " + server.getSketch());
 
+			// Keep getting and handling messages from the client
 			String line;
 			while ((line = in.readLine()) != null){
 				handleMessageFromEditor(line);
 			}
 			out.println(server.getSketch());
 
-			// Keep getting and handling messages from the client
-			// TODO: YOUR CODE HERE
-
-			// Clean up -- note that also remove self from server's list so it doesn't broadcast here
+			// Clean up -- also remove self from server's list, so it doesn't broadcast here
 			server.removeCommunicator(this);
 			out.close();
 			in.close();
@@ -62,14 +58,15 @@ public class SketchServerCommunicator extends Thread {
 			e.printStackTrace();
 		}
 	}
+
+	/***
+	 * adjust server's sketch based on message from the editor
+	 */
 	public void handleMessageFromEditor(String msg){
 		String[] commands = msg.split(" ");
 
         switch (commands[0]) {
-            case "DRAW" -> {
-                // Format: Command shape x1 y1 x2 y2 ColorInt (if it's a polyline there will be x3 y3, etc)
-                // Example Draw msg: DRAW ellipse 1 2 600 600 -12332
-
+            case "DRAW" -> {	// Example Draw msg: DRAW ellipse x1 y1 x2 y2 NEWCOLOR
                 String[] shapeParams = Arrays.copyOfRange(commands, 1, commands.length);
                 int id = server.getNextIDAndIncrement();
 
@@ -86,23 +83,20 @@ public class SketchServerCommunicator extends Thread {
                 int dy = Integer.parseInt(commands[3]);
 
                 server.moveShape(id, dx, dy);
-
             }
             case "REPAINT" -> { // REPAINT ID NEWCOLOR
                 int id = Integer.parseInt(commands[1]);
                 Color color = new Color(Integer.parseInt(commands[2]));
 
                 server.recolorShape(id, color);
-
             }
             case "DELETE" ->  { // DELETE ID
 				int id = Integer.parseInt(commands[1]);
 				server.removeShape(id);
-
 			}
-
         }
 
+		//after shape command is processed on server, broadcast that same message to all other editors
 		server.broadcast(msg);
 	}
 }

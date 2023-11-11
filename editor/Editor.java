@@ -10,6 +10,7 @@ import javax.swing.*;
  * @author CBK, winter 2014, overall structure substantially revised
  * @author Travis Peters, Dartmouth CS 10, Winter 2015; remove EditorCommunicatorStandalone (use echo server for testing)
  * @author CBK, spring 2016 and Fall 2016, restructured Shape and some of the GUI
+ * @author Jonah Bard, Daniel Katz
  */
 
 public class Editor extends JFrame {	
@@ -25,13 +26,9 @@ public class Editor extends JFrame {
 	}
 
 	private Mode mode = Mode.DRAW;				// drawing/moving/recoloring/deleting objects
-	private String shapeType = "ellipse";		// type of object to add
+	private String shapeType = "ellipse";		// type of object to add and default it to ellipse
 
-//	private enum ShapeType {
-//		ELLIPSE, POLYLINE, RECTANGLE, SEGMENT
-//	}
-
-	private Color color = Color.black;			// current drawing color
+	private Color color = Color.black;			// current drawing color that defaults to black
 
 	// Drawing state
 	// these are remnants of my implementation; take them as possible suggestions or ignore them
@@ -163,7 +160,7 @@ public class Editor extends JFrame {
 	/**
 	 * Getter for the sketch instance variable
 	 */
-	public Sketch getSketch() {
+	public synchronized Sketch getSketch() {
 		return sketch;
 	}
 
@@ -172,10 +169,12 @@ public class Editor extends JFrame {
 	 * along with the object currently being drawn in this editor (not yet part of the sketch)
 	 */
 	public void drawSketch(Graphics g) {
+			// Draw each shape in the sketch from the earliest to the latest added
 		for (Shape shape : sketch.getListOfShapesLowToHigh()) {
 			shape.draw(g);
 		}
 
+		// Draw the currently drawing shape on top
 		if (curr != null) {
 			curr.draw(g);
 		}
@@ -186,23 +185,27 @@ public class Editor extends JFrame {
 	/**
 	 * Helper method for press at point
 	 * In drawing mode, start a new object;
-	 * in moving mode, (request to) start dragging if clicked in a shape;
+	 * in moving mode, set ID + moveFrom to set up dragging if clicked in a shape;
 	 * in recoloring mode, (request to) change clicked shape's color
 	 * in deleting mode, (request to) delete clicked shape
 	 */
 	private void handlePress(Point p) {
+		// Get the x and y coordinates of the point
 		int curX = (int) p.getX(), curY = (int) p.getY();
 		switch (mode) {
 			case DRAW -> {
                 switch (shapeType) {
+					// Start drawing each type of shape
                     case "ellipse" -> curr = new Ellipse(curX, curY, color);
                     case "freehand" -> curr = new Polyline(curX, curY, color);
                     case "rectangle" -> curr = new Rectangle(curX, curY, color);
                     case "segment" -> curr = new Segment(curX, curY, color);
                 }
+				// Set the draw from point to the current point
 				drawFrom = p;
 			}
 			case MOVE -> {
+				// Get the topmost shape on the click and set up the moving variables if it is not null
 				Integer id = sketch.getIDOfShapeOnTop(curX, curY);
 				if (id != null) {
 					movingId = id;
@@ -210,31 +213,25 @@ public class Editor extends JFrame {
 				}
 			}
 			case RECOLOR -> {
+				// Get the topmost shape on the click and send recolor command if it exists
 				Integer id = sketch.getIDOfShapeOnTop(curX, curY);
 				if (id != null) {
-					comm.sendRecolorCommand(id, color.getRGB());
-//					sketch.getShape(id).setColor(color);
+					comm.sendRecolorMessageToServer(id, color.getRGB());
 				}
 			}
 			case DELETE -> {
+				// Get the topmost shape on the click and send delete command if it exists
 				Integer id = sketch.getIDOfShapeOnTop(curX, curY);
 				if (id != null) {
-//					sketch.removeShape(id);
-					comm.sendDeleteCommand(id);
+					comm.sendDeleteMessageToServer(id);
 				}
 			}
 		}
 
+		// Repaint the canvas after potential changes
 		repaint();
 	}
 
-	public void recolorShape(int id, Color newColor) {
-		sketch.getShape(id).setColor(newColor);
-	}
-
-	public void deleteShape(int id) {
-		sketch.removeShape(id);
-	}
 
 	/**
 	 * Helper method for drag to new point
@@ -242,10 +239,12 @@ public class Editor extends JFrame {
 	 * in moving mode, (request to) drag the object
 	 */
 	private void handleDrag(Point p) {
+		// Get the x and y coordinates of the point
 		int curX = (int) p.getX(), curY = (int) p.getY();
 
 		switch (mode) {
 			case DRAW -> {
+				// Draw the current shape from the drawFrom point to the current point
 				if (curr != null && drawFrom != null) {
 					int ox = (int) drawFrom.getX(), oy = (int) drawFrom.getY();
 					curr.drawDrag(ox, oy, curX, curY);
@@ -253,50 +252,87 @@ public class Editor extends JFrame {
 			}
 			case MOVE -> {
 				if (movingId != -1 && moveFrom != null) {
+					// Send the movement command to the server and update the moveFrom point
 					int ox = (int) moveFrom.getX(), oy = (int) moveFrom.getY();
-					comm.sendMoveCommand(movingId, curX - ox, curY - oy);
+					comm.sendMoveMessageToServer(movingId, curX - ox, curY - oy);
 					moveFrom = p;
 				}
 			}
 		}
 
+		// Repaint the canvas after potential changes
 		repaint();
-	}
-
-	public void moveShape(int id, int dx, int dy) {
-		sketch.getShape(id).moveBy(dx, dy);
 	}
 
 	/**
 	 * Helper method for release
-	 * In drawing mode, pass the add new object request on to the server;
+	 * In drawing mode, pass the add new object (request) on to the server;
 	 * in moving mode, release it		
 	 */
 	private void handleRelease() {
 		switch (mode) {
 			case DRAW -> {
+				// Send the shape to the server and clear the current drawFrom
 				comm.sendDrawMessageToServer(curr);
 				drawFrom = null;
 			}
 			case MOVE -> {
+				// Moving is over so reset the moving variables
 				movingId = -1;
 				moveFrom = null;
 			}
 		}
 
+		// Repaint the canvas after potential changes
 		repaint();
 	}
 
+	/**
+	 * Move a shape in the sketch by the given difference
+	 */
+	public synchronized void moveShape(int id, int dx, int dy) {
+		sketch.getShape(id).moveBy(dx, dy);
+	}
 
-	public void callRepaint() {
+	/**
+	 * Add a shape to the sketch with the given id
+	 */
+	public synchronized void addShape(int id, Shape shape) {
+		sketch.addShape(id, shape);
+	}
+
+	/**
+	 * Recolor a shape in the sketch
+	 */
+	public synchronized void recolorShape(int id, Color newColor) {
+		sketch.getShape(id).setColor(newColor);
+	}
+
+	/**
+	 * Delete a shape from the sketch
+	 */
+	public synchronized void deleteShape(int id) {
+		sketch.removeShape(id);
+	}
+
+	/**
+	 * Repaint the canvas
+	 */
+	public synchronized void callRepaint() {
 		repaint();
 	}
 
-	public void clearCurrentShape() {
+	/**
+	 * Clear the current shape
+     * Used when the communicator finally gets the shape back from the server
+	 */
+	public synchronized void clearCurrentShape() {
 		curr = null;
 	}
 
-
+	/**
+	 * Run the editor
+	 */
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {

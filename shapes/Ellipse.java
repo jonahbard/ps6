@@ -41,6 +41,11 @@ public class Ellipse implements Shape {
 		this.y2 = Math.max(y1, y2);		
 	}
 
+	/**
+	 * Returns true if the point (x,y) is inside the ellipse
+	 * @param x
+	 * @param y
+	 */
 	@Override
 	public boolean contains(int x, int y) {
 		double a = (x2-x1)/2.0, b = (y2-y1)/2.0;
@@ -51,33 +56,61 @@ public class Ellipse implements Shape {
 		return Math.pow(dx / a, 2) + Math.pow(dy / b, 2) <= 1;
 	}
 
+	/**
+	 * Move the ellipse by dx and dy
+	 * @param dx
+	 * @param dy
+	 */
 	@Override
 	public void moveBy(int dx, int dy) {
 		x1 += dx; y1 += dy;
 		x2 += dx; y2 += dy;
 	}
 
+	/**
+	 * Handle a mouse drag event while drawing
+	 * @param ox
+	 * @param oy
+	 * @param nx
+	 * @param ny
+	 */
 	@Override
 	public void drawDrag(int ox, int oy, int nx, int ny) {
 		setCorners(ox, oy, nx, ny);
 	}
 
+	/**
+	 * Get the color
+	 * @return
+	 */
 	@Override
 	public Color getColor() {
 		return color;
 	}
 
+	/**
+	 * Set the color
+	 * @param color The shape's color
+	 */
 	@Override
 	public void setColor(Color color) {
 		this.color = color;		
 	}
-	
+
+	/**
+	 * Draw the ellipse
+	 * @param g
+	 */
 	@Override
 	public void draw(Graphics g) {
 		g.setColor(color);
 		g.fillOval(x1, y1, x2-x1, y2-y1);
 	}
 
+	/**
+	 * Convert the ellipse to a string for message passing
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		return "ellipse "+x1+" "+y1+" "+x2+" "+y2+" "+color.getRGB();
