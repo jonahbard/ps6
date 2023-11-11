@@ -40,6 +40,9 @@ public class SketchServerCommunicator extends Thread {
 
 			// Tell the client the current state of the world
 			// TODO: YOUR CODE HERE
+
+			out.println("SKETCH " + server.getSketch());
+
 			String line;
 			while ((line = in.readLine()) != null){
 				handleMessageFromEditor(line);
@@ -61,58 +64,44 @@ public class SketchServerCommunicator extends Thread {
 	}
 	public void handleMessageFromEditor(String msg){
 		String[] commands = msg.split(" ");
-		if (commands[0].equals("DRAW")) {
-			System.out.println("commands: " + Arrays.toString(commands));
-			System.out.println("command len: " + commands.length);
-			System.out.println();
 
-			// Format: Command shape x1 y1 x2 y2 ColorInt
-			// Example Draw msg: DRAW ellipse 1 2 600 600 -12332
+        switch (commands[0]) {
+            case "DRAW" -> {
+                // Format: Command shape x1 y1 x2 y2 ColorInt (if it's a polyline there will be x3 y3, etc)
+                // Example Draw msg: DRAW ellipse 1 2 600 600 -12332
 
-			String[] shapeParams = Arrays.copyOfRange(commands, 1, commands.length);
+                String[] shapeParams = Arrays.copyOfRange(commands, 1, commands.length);
+                int id = server.getNextIDAndIncrement();
 
-			String shapeType = shapeParams[0];
-			int id = server.getNextIDAndIncrement();
-			int x1 = Integer.parseInt(shapeParams[1]);
-			int y1 = Integer.parseInt(shapeParams[2]);
-			int x2 = Integer.parseInt(shapeParams[3]);
-			int y2 = Integer.parseInt(shapeParams[4]);
-			Color color = new Color(Integer.parseInt(shapeParams[5]));
+                Shape shape = MessageParser.parseShape(shapeParams);
 
-			Shape shape = null;
-			if (shapeType.equals("ellipse")) {
-				shape = new Ellipse(x1, y1, x2, y2, color);
-			} else if (shapeType.equals("rectangle")){
-				shape = new Rectangle(x1, y1, x2, y2, color);
-			} else if (shapeType.equals("segment")){
-				shape = new Segment(x1, y1, x2, y2, color);
-			} else if (shapeType.equals("polyline")){
-				shape = new Polyline(x1, y1, color);
-				//fill in the rest of the polyline here
+                if (shape != null) {
+                    server.addShape(id, shape);
+                    msg = "DRAW " + id + " " + shape;
+                }
+            }
+            case "MOVE" -> {        // MOVE ID NX NY
+                int id = Integer.parseInt(commands[1]);
+                int dx = Integer.parseInt(commands[2]);
+                int dy = Integer.parseInt(commands[3]);
+
+                server.moveShape(id, dx, dy);
+
+            }
+            case "REPAINT" -> { // REPAINT ID NEWCOLOR
+                int id = Integer.parseInt(commands[1]);
+                Color color = new Color(Integer.parseInt(commands[2]));
+
+                server.recolorShape(id, color);
+
+            }
+            case "DELETE" ->  { // DELETE ID
+				int id = Integer.parseInt(commands[1]);
+				server.removeShape(id);
+
 			}
 
-			if (shape != null) {
-				server.getSketch().addShape(id, shape);
-				msg = "DRAW " + id + " " + shape;
-			}
-		}
-
-		else if (commands[0].equals("MOVE")){ 		// MOVE ID NX NY
-
-			int id = Integer.parseInt(commands[1]);
-			int dx = Integer.parseInt(commands[2]);
-			int dy = Integer.parseInt(commands[3]);
-
-			server.moveShape(id, dx, dy);
-
-
-		} else if (commands[0].equals("REPAINT")){ // REPAINT ID NEWCOLOR
-			server.recolorShape(Integer.parseInt(commands[1]), new Color(Integer.parseInt(commands[2])));
-
-
-		} else if (commands[0].equals("DELETE")) { 		// DELETE ID
-			server.removeShape(Integer.parseInt(commands[1]));
-		}
+        }
 
 		server.broadcast(msg);
 	}

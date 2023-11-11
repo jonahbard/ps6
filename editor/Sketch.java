@@ -40,23 +40,32 @@ public class Sketch {
         }
 
 
-        public synchronized void moveShape(int id, int dx, int dy){
-            shapes.get(id).moveBy(dx, dy);
-        }
+    public synchronized void moveShape(int id, int dx, int dy){
+        shapes.get(id).moveBy(dx, dy);
+    }
 
-        public synchronized void recolorShape(int id, Color color){
-            shapes.get(id).setColor(color);
-        }
+    public synchronized void recolorShape(int id, Color color){
+        shapes.get(id).setColor(color);
+    }
 
-        public synchronized void removeShape(int id) {
-            shapes.remove(id);
-        }
+    public synchronized void removeShape(int id) {
+        shapes.remove(id);
+    }
 
-        public Integer getIDOfShapeOnTop(int x, int y) {
-            for (Integer id : shapes.descendingKeySet()) {
-                Shape shape = shapes.get(id);
-                if (shape.contains(x, y)) return id;
-            }
-            return null;
+    public Integer getIDOfShapeOnTop(int x, int y) {
+        for (Integer id : shapes.descendingKeySet()) {
+            Shape shape = shapes.get(id);
+            if (shape.contains(x, y)) return id;
         }
+        return null;
+    }
+
+    public String toString() {
+        String out = "";
+        for (int id : shapes.navigableKeySet()) {
+            Shape shape = shapes.get(id);
+            out += "|" + id + " " + shape.toString();
+        }
+        return !shapes.isEmpty() ? out.substring(1) : "";
+    }
 }

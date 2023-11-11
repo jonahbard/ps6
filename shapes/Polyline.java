@@ -25,13 +25,19 @@ public class Polyline implements Shape {
 
 	@Override
 	public void moveBy(int dx, int dy) {
+		for (Segment s: segments){
+			s.moveBy(dx, dy);
+		}
 	}
 
 	@Override
 	public void drawDrag(int ox, int oy, int nx, int ny) {
+		addNewPoint(nx, ny);
+	}
+
+	public void addNewPoint(int nx, int ny) {
 		segments.get(segments.size()-1).setEnd(nx, ny);
 		segments.add(new Segment(nx, ny, color));
-
 	}
 
 
@@ -43,6 +49,9 @@ public class Polyline implements Shape {
 	@Override
 	public void setColor(Color color) {
 		this.color = color;
+		for (Segment segment : segments) {
+			segment.setColor(color);
+		}
 	}
 	
 	@Override

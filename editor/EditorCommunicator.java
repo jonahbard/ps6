@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.beans.IntrospectionException;
 import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
@@ -53,8 +54,6 @@ public class EditorCommunicator extends Thread {
 			// while not sending data TO the server, handle messages FROM the server
 			//should constantly set the "sketch" in Editor to be the SketchServer's sketch
 			// Handle messages
-			// TODO: YOUR CODE HERE
-//			throw new IOException("temp");
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -67,7 +66,19 @@ public class EditorCommunicator extends Thread {
 	public void handleMessageFromServer(String message) {
 		System.out.println(message);
 		String[] commands = message.split(" ");
-		if (commands[0].equals("DRAW")) {
+		if (commands[0].equals("SKETCH")) {
+			if (commands.length == 1) return;
+			commands = message.split(" ", 2);
+			System.out.println("command 0: " + commands[1]);
+			String[] shapeCommandStrings = commands[1].split("\\|");
+			for (String shapeCommandString : shapeCommandStrings) {
+				String[] shapeCommands = shapeCommandString.split(" ");
+				int id = Integer.parseInt(shapeCommands[0]);
+				Shape shape = MessageParser.parseShape(Arrays.copyOfRange(shapeCommands, 1, shapeCommands.length));
+				editor.getSketch().addShape(id, shape);
+			}
+		}
+		else if (commands[0].equals("DRAW")) {
 			System.out.println("commands: " + Arrays.toString(commands));
 			System.out.println("command len: " + commands.length);
 			System.out.println();
@@ -75,46 +86,21 @@ public class EditorCommunicator extends Thread {
 			// Format: Command ID shape x1 y1 x2 y2 ColorInt
 			// Example Draw msg: DRAW 000001 ellipse 1 2 600 600 -12332
 
-			boolean hasID = commands.length == 8;
+			boolean hasID = false;
+			try {
+				Integer.parseInt(commands[1]);
+				hasID = true;
+			}
+			catch (Exception e) {
+				hasID = false;
+			}
 			int id = hasID ? Integer.parseInt(commands[1]) : (int) (Math.random() * 1000);
 
 			String[] shapeParams = Arrays.copyOfRange(commands, hasID ? 2 : 1, commands.length);
 
-			String shapeType = shapeParams[0];
-
-			Shape shape = null;
-			if (shapeType.equals("polyline")) {
-				int x1 = Integer.parseInt(shapeParams[1]);
-				int y1 = Integer.parseInt(shapeParams[2]);
-				Color color = new Color(Integer.parseInt(shapeParams[shapeParams.length-1]));
-				shape = new Polyline(x1, y1, color);
-
-				for (int i = 3; i < shapeParams.length-1; i+=2){
-					shape.drawDrag(
-						Integer.parseInt(shapeParams[i-2]),
-						Integer.parseInt(shapeParams[i-1]),
-						Integer.parseInt(shapeParams[i]),
-						Integer.parseInt(shapeParams[i+1])
-					);
-				}
-			}
-			else {
-				int x1 = Integer.parseInt(shapeParams[1]);
-				int y1 = Integer.parseInt(shapeParams[2]);
-				int x2 = Integer.parseInt(shapeParams[3]);
-				int y2 = Integer.parseInt(shapeParams[4]);
-				Color color = new Color(Integer.parseInt(shapeParams[5]));
-
-				if (shapeType.equals("ellipse")) shape = new Ellipse(x1, y1, x2, y2, color);
-				else if (shapeType.equals("rectangle")) shape = new Rectangle(x1, y1, x2, y2, color);
-				else if (shapeType.equals("segment")) shape = new Segment(x1, y1, x2, y2, color);
-			}
-
+			Shape shape = MessageParser.parseShape(shapeParams);
 			if (shape != null) editor.getSketch().addShape(id, shape);
 			editor.clearCurrentShape();
-
-
-
 		}
 		// MOVE ID OX OY NX NY
 		else if (commands[0].equals("MOVE")){
@@ -124,6 +110,7 @@ public class EditorCommunicator extends Thread {
 
 			editor.moveShape(id, dx, dy);
 		}
+
 		// RECOLOR ID NEWCOLOR
 		else if (commands[0].equals("RECOLOR")){
 			int id = Integer.parseInt(commands[1]);

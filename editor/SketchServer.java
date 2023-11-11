@@ -45,9 +45,8 @@ public class SketchServer {
 		}
 	}
 
-	public synchronized void addShape(Shape shape){
-		sketch.addShape(nextID, shape); // need to
-		nextID++;
+	public synchronized void addShape(int id, Shape shape){
+		sketch.addShape(id, shape); // need to
 		System.out.println("added shape in sketch: " + shape);
 
 	}
