@@ -54,6 +54,7 @@ public class SketchServerCommunicator extends Thread {
 			out.close();
 			in.close();
 			sock.close();
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
