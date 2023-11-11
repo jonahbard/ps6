@@ -4,30 +4,38 @@ import java.util.TreeMap;
 
 public class Sketch {
 
-        //need to have some kind of shape identification
+    //need to have some kind of shape identification
 
-        private TreeMap<Integer, Shape> shapes;
+    private TreeMap<Integer, Shape> shapes;
 
-        public Sketch() {
-            shapes = new TreeMap<>();
-        }
+    public Sketch() {
+        shapes = new TreeMap<>();
+    }
 
 //        public TreeMap<Integer, Shape> getShapes() {
 //            return shapes;
 //        }
 
-        public synchronized Shape getShape(int id) {
-                return shapes.get(id);
-        }
+    public synchronized Shape getShape(int id) {
+            return shapes.get(id);
+    }
 
-        public synchronized List<Shape> getListOfShapesLowToHigh() {
-            return shapes.navigableKeySet()
-                    .stream()
-                    .map(key -> shapes.get(key))
-                    .toList();
-        }
+    public synchronized List<Shape> getListOfShapesLowToHigh() {
+        return shapes.navigableKeySet()
+                .stream()
+                .map(key -> shapes.get(key))
+                .toList();
+    }
 
-        public synchronized void addShape(Integer id, Shape shape) {
+    public synchronized List<Shape> getListOfShapesHighToLow() {
+        return shapes.descendingKeySet()
+            .stream()
+            .map(key -> shapes.get(key))
+            .toList();
+    }
+
+
+    public synchronized void addShape(Integer id, Shape shape) {
             shapes.put(id, shape);
         }
 
