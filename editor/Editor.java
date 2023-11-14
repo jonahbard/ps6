@@ -157,12 +157,6 @@ public class Editor extends JFrame {
 		return gui;
 	}
 
-	/**
-	 * Getter for the sketch instance variable
-	 */
-	public synchronized Sketch getSketch() {
-		return sketch;
-	}
 
 	/**
 	 * Draws all the shapes in the sketch,

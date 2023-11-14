@@ -146,18 +146,37 @@ public class EditorCommunicator extends Thread {
 
 	// Send editor requests to the server
 
+	/**
+	 * Send draw message
+	 * @param shape
+	 */
 	public void sendDrawMessageToServer(Shape shape) {
 		out.println("DRAW " + shape.toString());
 	}
 
+	/**
+	 * Send move message
+	 * @param id
+	 * @param dy
+	 * @param dx
+	 */
 	public void sendMoveMessageToServer(int id, int dy, int dx) {
 		out.println("MOVE " + id + " " + dy + " " + dx);
 	}
 
+	/**
+	 * Send recolor message
+	 * @param id
+	 * @param newColor
+	 */
 	public void sendRecolorMessageToServer(int id, int newColor) {
 		out.println("RECOLOR " + id + " " + newColor);
 	}
 
+	/**
+	 * Send delete message
+	 * @param id
+	 */
 	public void sendDeleteMessageToServer(int id) {
 		out.println("DELETE " + id);
 	}

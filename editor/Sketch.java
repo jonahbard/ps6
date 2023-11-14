@@ -90,10 +90,10 @@ public class Sketch {
 
     /***
      * converts the entire sketch to a string. all shapes start with a vertical pipe
-     * Pipe operators are for seperating individual shape commands so we need to get rid of the preceding one
+     * Pipe operators are for seperating individual shape commands so we need to get rid of the first one
      * @return
      */
-    public String toString() {
+    public synchronized String toString() {
         String out = "";
         for (int id : shapes.navigableKeySet()) {
             Shape shape = shapes.get(id);

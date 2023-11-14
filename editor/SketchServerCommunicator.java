@@ -38,9 +38,10 @@ public class SketchServerCommunicator extends Thread {
 			in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 			out = new PrintWriter(sock.getOutputStream(), true);
 
-			// Tell the client the current state of the world
-			out.println("SKETCH " + server.getSketch());
-
+//			// Tell the client the current state of the world
+			out.println("SKETCH " + server.getSketch().toString());
+			System.out.println("sent sketch: " + server.getSketch().toString());
+			
 			// Keep getting and handling messages from the client
 			String line;
 			while ((line = in.readLine()) != null){
@@ -84,7 +85,7 @@ public class SketchServerCommunicator extends Thread {
 
                 server.moveShape(id, dx, dy);
             }
-            case "REPAINT" -> { // REPAINT ID NEWCOLOR
+            case "RECOLOR" -> { // RECOLOR ID NEWCOLOR
                 int id = Integer.parseInt(commands[1]);
                 Color color = new Color(Integer.parseInt(commands[2]));
 

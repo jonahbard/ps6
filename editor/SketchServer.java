@@ -8,6 +8,7 @@ import java.io.*;
  * updating the overall state, and passing them on to the clients
  *
  * @author Chris Bailey-Kellogg, Dartmouth CS 10, Fall 2012; revised Winter 2014 to separate SketchServerCommunicator
+ * @author Jonah Bard, Daniel Katz
  */
 public class SketchServer {
 
