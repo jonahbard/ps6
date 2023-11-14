@@ -59,22 +59,43 @@ public class SketchServer {
 	}
 
 	//BELOW: 4 functions that adjust the sketch when given Shape ID / other relevant parameters
+
+	/**
+	 * Add a shape to the sketch with the given ID
+	 * @param id
+	 * @param shape
+	 */
 	public synchronized void addShape(int id, Shape shape){
 		sketch.addShape(id, shape); // need to
 		System.out.println("added shape in sketch: " + shape);
 
 	}
 
+	/**
+	 * Remove a shape from the sketch with the given ID
+	 * @param id
+	 */
 	public synchronized void removeShape(int id){
 		sketch.removeShape(id);
 		System.out.println("removed shape id: " + id);
 	}
 
+	/**
+	 * Move the shape with the given ID by the given amount
+	 * @param id
+	 * @param dx
+	 * @param dy
+	 */
 	public synchronized void moveShape(int id, int dx, int dy){
 		sketch.moveShape(id, dx, dy);
 		System.out.println("moved shape in sketch. id: " + id + " moved by " + dx + ", "+ dy);
 	}
 
+	/**
+	 * Recolor the shape with the given ID to the given color
+	 * @param id
+	 * @param color
+	 */
 	public synchronized void recolorShape(int id, Color color){
 		sketch.recolorShape(id, color);
 		System.out.println("recolored shape in sketch. id: " + id + " color: "+ color);
